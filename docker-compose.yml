@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  # FastAPI Backend
+  backend:
+    build: .
+    container_name: support-orchestrator-api
+    ports:
+      - "8000:8000"
+    environment:
+      - LOG_LEVEL=INFO
+      - LLM_MODE=local
+      - HUGGINGFACE_API_TOKEN=${HUGGINGFACE_API_TOKEN}
+    volumes:
+      - ./examples/data:/app/examples/data:ro
+      - chroma-data:/app/.chroma
+      - ./logs:/app/logs
+    command: python backend/main.py
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Streamlit UI
+  frontend:
+    build: .
+    container_name: support-orchestrator-ui
+    ports:
+      - "8501:8501"
+    environment:
+      - API_URL=http://backend:8000
+    command: streamlit run src/ui/app.py --server.port=8501 --server.address=0.0.0.0
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  chroma-data:
+    driver: local
+
+networks:
+  default:
+    name: support-orchestrator-network

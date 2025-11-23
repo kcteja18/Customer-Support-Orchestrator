@@ -1,0 +1,27 @@
+# Core dependencies
+langchain
+langchain-community
+langgraph
+chromadb
+tiktoken
+python-dotenv
+
+# Vector embeddings and ML
+scikit-learn
+numpy
+sentence-transformers
+
+# LLM providers
+huggingface_hub
+
+# API and UI
+fastapi
+uvicorn[standard]
+pydantic
+streamlit
+requests
+
+# Testing
+pytest
+pytest-asyncio
+httpx
